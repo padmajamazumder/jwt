@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cPanel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+      background-image: url('https://picsum.photos/1800/1600');
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-position: center;
+      background-size: cover;
+    }
+    .adduser {
+      background-color: #00000063;
+      padding: 20px;
+      border-radius: 50px;
+      text-align: center;
+    }
+    h1, h2 {
+      color: #ffffff;
+      font-weight: bold;
+    }
+    form {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="submit"],
+    button {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #fff;
+      cursor: pointer;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="submit"] {
+      width: 30%;
+      margin-right: 5px;
+    }
+    input[type="submit"],
+    button {
+      background-color: #007bff;
+      color: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #f0f0f0a6;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    button {
+      cursor: pointer;
+      background-color: #dc3545;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="adduser">
+    <h1>cPanel</h1>
+    <form id="add-user-form" action="/add-user" method="POST">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="email" name="email" placeholder="Email">
+      <input type="text" name="mobile" placeholder="Phone number" required>
+      <input type="submit" value="Add User">
+    </form>
+    
+    <!-- Users table -->
+    <h2>Users</h2>
+    <table id="user-table">
+      <thead>
+        <tr>
+          <th id="number">Number</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="user-list"></tbody>
+    </table>
+  </div>
+    
+  <script>
+    fetch('/users')
+      .then(response => response.json())
+      .then(users => {
+        const userList = document.getElementById('user-list');
+        userList.innerHTML = '';
+        users.forEach((user, index) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.mobile}</td>
+            <td><button onclick="deleteUser('${user.username}')">Delete</button></td>
+          `;
+          userList.appendChild(tr);
+        });
+      });
+
+    // Function to delete a user
+    function deleteUser(username) {
+      fetch(`/delete-user/${username}`, { method: 'DELETE' })
+        .then(() => {
+          // Refresh the user list after deletion
+          location.reload();
+        });
+    };
+    document.getElementById('add-user-form').addEventListener('submit', () => {
+      // Reload the page after form submission
+      location.reload();
+    });
+  </script>
+</body>
+</html>
